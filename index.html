@@ -12,9 +12,9 @@
 <meta property="og:site_name" content="Cola Eleitoral - SP 2026">
 <meta property="og:title" content="🗳️ Cola Eleitoral - SP 2026 — monte e imprima a sua">
 <meta property="og:description" content="Escolha presidente, governador, senadores e deputados de SP com foto e número. Envie pelo WhatsApp ou imprima para levar à urna.">
-<meta property="og:url" content="https://jcarazzato1969-debug.github.io/cola-eleitoral-sp-2026/">
-<meta property="og:image" content="https://jcarazzato1969-debug.github.io/cola-eleitoral-sp-2026/og-image.png">
-<meta property="og:image:secure_url" content="https://jcarazzato1969-debug.github.io/cola-eleitoral-sp-2026/og-image.png">
+<meta property="og:url" content="https://jcarazzato1969-debug.github.io/COLA-ELEITORAL-SP-2026/">
+<meta property="og:image" content="https://jcarazzato1969-debug.github.io/COLA-ELEITORAL-SP-2026/og-image.png">
+<meta property="og:image:secure_url" content="https://jcarazzato1969-debug.github.io/COLA-ELEITORAL-SP-2026/og-image.png">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -570,7 +570,7 @@ function imprimir(){
 
 
 // ---------- WhatsApp / compartilhamento ----------
-const APP_URL = location.protocol.startsWith('http') ? location.origin + location.pathname : 'https://jcarazzato1969-debug.github.io/cola-eleitoral-sp-2026/';
+const APP_URL = location.protocol.startsWith('http') ? location.origin + location.pathname : 'https://jcarazzato1969-debug.github.io/COLA-ELEITORAL-SP-2026/';
 function toast(msg){
   const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
   document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
@@ -695,15 +695,33 @@ $('#cfgLimpaCache').onclick = () => {
 $('#cfgLimpaTudo').onclick = () => { if (confirm('Apagar todas as escolhas?')){ state.picks = {}; LS.set('cola.picks', {}); goStep(0); } };
 
 // ---------- Início ----------
+async function carregarLocal(){
+  // Lista baixada do TSE pelo GitHub Actions e publicada junto com o site
+  const r = await fetch('data/candidatos.json', { cache: 'no-cache' });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const d = await r.json();
+  if (!d || !d.eleicao || !d.cargos) throw new Error('arquivo inválido');
+  return d;
+}
+
 async function init(){
   render();
+  try{
+    const d = await carregarLocal();
+    state.eleicao = d.eleicao;
+    for (const k in d.cargos) state.lists[k] = d.cargos[k];
+    const quando = new Date(d.atualizado).toLocaleString('pt-BR', { dateStyle:'short', timeStyle:'short' });
+    setStatus('ok', `Candidatos do TSE · <b>${esc(d.eleicao.nome)}</b><small>Lista oficial do DivulgaCandContas, atualizada em ${esc(quando)}</small>`);
+    render();
+    return;
+  }catch(e){ /* sem arquivo local: tenta o TSE direto */ }
   try{
     state.eleicao = await descobrirEleicao();
     LS.set('cola.eleicao', state.eleicao);
     setStatus('ok', `Conectado ao TSE · <b>${esc(state.eleicao.nome)}</b><small>Código ${esc(state.eleicao.id)} · candidatos atualizados a cada 6 h</small>`);
     render();
   }catch(e){
-    setStatus('err', `Não consegui acessar o site do TSE agora (${esc(e.message)}).<small>Verifique a internet e recarregue a página. Se persistir, informe o código da eleição em “Configurações avançadas”.</small>`);
+    setStatus('err', `Não consegui carregar a lista de candidatos agora (${esc(e.message)}).<small>Verifique a internet e recarregue a página em alguns minutos.</small>`);
   }
 }
 init();
