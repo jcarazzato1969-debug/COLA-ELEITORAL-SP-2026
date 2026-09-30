@@ -98,16 +98,26 @@ def main():
             "sit": titulo(sit),
             "vice": "",
         })
-    for cd, lista in cargos.items():
-        vistos = {}
-        for c in lista:
-            vistos.setdefault(c["n"], []).append(c["id"])
-        for n, ids_n in vistos.items():
-            if len(ids_n) > 1:
-                print(f"Número repetido cargo {cd} nº {n}:")
-                for r in turno1:
-                    if r.get("NR_CANDIDATO", "").strip() == n and r.get("CD_CARGO") == str(cd) and (cd == 1 or r.get("SG_UF") == "SP"):
-                        print("   ", {k: v for k, v in r.items() if k.startswith(("SQ_", "NM_URNA", "DS_SITUACAO", "DS_DETALHE", "CD_SITUACAO", "DT_GERACAO", "HH_", "CD_ELEICAO", "DS_ELEICAO", "ST_"))})
+    # Mesmo número no mesmo cargo: substituição de candidato ou registro duplicado.
+    # A planilha de 2026 não traz a situação, então o registro mais recente (SQ maior)
+    # fica como principal e os anteriores recebem um aviso.
+    for cd in cargos:
+        por_num = {}
+        for c in cargos[cd]:
+            por_num.setdefault(c["n"], []).append(c)
+        final = []
+        for n, grupo in por_num.items():
+            grupo.sort(key=lambda c: c["id"], reverse=True)
+            novo = grupo[0]
+            final.append(novo)
+            for velho in grupo[1:]:
+                if velho["nome"] == novo["nome"]:
+                    continue  # mesmo candidato registrado duas vezes
+                velho["sit"] = "Número repetido: provável substituição, confira no TSE"
+                velho["dup"] = True
+                final.append(velho)
+                print(f"Cargo {cd} nº {n}: {novo['nome']} (principal) x {velho['nome']} (anterior)")
+        cargos[cd] = final
     for cd, lista in cargos.items():
         for c in lista:
             c["vice"] = vices.get((cd, c["n"]), "")
@@ -155,7 +165,7 @@ def main():
 
     cod = max(cod_eleicao, key=lambda k: k or "") if cod_eleicao else ""
     saida = {
-        "eleicao": {"id": cod, "nome": cod_eleicao.get(cod) or f"Eleições Gerais {ANO}", "ano": ANO},
+        "eleicao": {"id": cod, "nome": f"Eleições Gerais {ANO}", "ano": ANO},
         "fonte": "Dados Abertos do TSE (consulta_cand)",
         "atualizado": datetime.now(timezone.utc).isoformat(timespec="minutes"),
         "cargos": {str(k): v for k, v in cargos.items()},

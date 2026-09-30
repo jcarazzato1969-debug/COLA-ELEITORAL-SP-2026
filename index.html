@@ -339,7 +339,7 @@ const ruim = sit => /indefer|ren[uú]n|cancel|falec|cassad|n[aã]o conhec|inapto
 function tagSit(sit){
   if (!sit) return '';
   if (ruim(sit)) return `<span class="tag bad">${esc(sit)}</span>`;
-  if (/recurso|aguard|pendente/i.test(sit)) return `<span class="tag warn">${esc(sit)}</span>`;
+  if (/recurso|aguard|pendente|repetido/i.test(sit)) return `<span class="tag warn">${esc(sit)}</span>`;
   return `<span class="tag">${esc(sit)}</span>`;
 }
 
@@ -455,7 +455,7 @@ function renderResults(cargo){
     res = pool.filter(c => norm(c.nome).includes(t) || norm(c.completo).includes(t) || norm(c.sigla) === t);
   }
   // candidatos aptos primeiro, depois por número
-  res.sort((a,b)=> (a.legenda?0:1)-(b.legenda?0:1) || (ruim(a.sit)?1:0)-(ruim(b.sit)?1:0) || a.n.localeCompare(b.n));
+  res.sort((a,b)=> (a.legenda?0:1)-(b.legenda?0:1) || (ruim(a.sit)||a.dup?1:0)-(ruim(b.sit)||b.dup?1:0) || a.n.localeCompare(b.n));
   const LIM = 60;
   const pick = state.picks[cargo.key];
   const outro = cargo.key==='sen2' ? state.picks.sen1 : cargo.key==='sen1' ? state.picks.sen2 : null;
