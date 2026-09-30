@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Cola Eleitoral SP 2026</title>
+<meta name="theme-color" content="#0b3d2e">
+<meta name="description" content="Monte sua cola para as Eleições 2026 em São Paulo: presidente, governador, senadores e deputados, com foto e número dos candidatos.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --surface-2:#eef2f0; --text:#14201b; --muted:#5d6d66;
+  --line:#d6dfdb; --brand:#0b6b4a; --brand-2:#0b3d2e; --accent:#f2b705; --danger:#b3261e;
+  --ok-bg:#e3f4ec; --warn-bg:#fff4d6; --bad-bg:#fde7e6; --shadow:0 1px 2px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1513; --surface:#18201d; --surface-2:#1f2926; --text:#e7efeb; --muted:#9db0a8;
+    --line:#2d3a35; --brand:#35b98a; --brand-2:#0b3d2e; --accent:#f2c53d; --danger:#ff8a80;
+    --ok-bg:#16352a; --warn-bg:#3a3217; --bad-bg:#3d1d1b; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1513; --surface:#18201d; --surface-2:#1f2926; --text:#e7efeb; --muted:#9db0a8;
+  --line:#2d3a35; --brand:#35b98a; --brand-2:#0b3d2e; --accent:#f2c53d; --danger:#ff8a80;
+  --ok-bg:#16352a; --warn-bg:#3a3217; --bad-bg:#3d1d1b; --shadow:none;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.4;min-height:100vh}
+button{font:inherit;cursor:pointer}
+input{font:inherit}
+.mono{font-family:"Roboto Mono",ui-monospace,monospace}
+
+header.top{background:var(--brand-2);color:#fff;padding:18px 16px 16px}
+header.top .wrap{max-width:880px;margin:0 auto;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+header.top h1{font-size:20px;font-weight:800;letter-spacing:-.01em}
+header.top p{font-size:13px;opacity:.85;margin-top:2px}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;padding:9px 14px;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--brand)}
+.btn.primary{background:var(--accent);color:#1d1600;border-color:var(--accent)}
+.btn.ghost{background:transparent;color:inherit;border-color:rgba(255,255,255,.35)}
+.btn.small{padding:6px 10px;font-size:13px}
+.btn.danger{color:var(--danger)}
+
+main{max-width:880px;margin:0 auto;padding:16px 16px 60px}
+.status{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px;margin-bottom:14px;display:flex;gap:10px;align-items:flex-start;box-shadow:var(--shadow)}
+.status.err{background:var(--bad-bg)}
+.status .dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none;margin-top:5px}
+.status.ok .dot{background:var(--brand)}
+.status.loading .dot{background:var(--accent);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.status small{color:var(--muted);display:block;margin-top:2px}
+
+.steps{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+.steps::-webkit-scrollbar{display:none}
+.step{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px}
+.step.active{border-color:var(--brand);color:var(--text);box-shadow:0 0 0 2px color-mix(in srgb,var(--brand) 25%,transparent)}
+.step .n{width:20px;height:20px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;font-size:11px}
+.step.done .n{background:var(--brand);color:#fff}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+.card h2{font-size:18px;font-weight:800}
+.card .sub{color:var(--muted);font-size:13px;margin-top:2px}
+
+.urna{display:flex;gap:6px;margin:14px 0 10px;flex-wrap:wrap}
+.urna .d{width:44px;height:56px;border:2px solid var(--line);border-radius:8px;display:grid;place-items:center;font-size:28px;background:var(--surface-2)}
+.urna .d.f{border-color:var(--brand);background:var(--surface)}
+
+.search{position:relative}
+.search input{width:100%;border:2px solid var(--line);border-radius:12px;padding:13px 14px;font-size:17px;background:var(--surface);color:var(--text);outline:none}
+.search input:focus{border-color:var(--brand)}
+.hint{font-size:12.5px;color:var(--muted);margin-top:6px}
+
+.results{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:14px}
+.cand{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:10px;text-align:left;display:flex;flex-direction:column;gap:8px;color:var(--text);transition:transform .08s,border-color .08s}
+.cand:hover{border-color:var(--brand);transform:translateY(-1px)}
+.cand.exact{border:2px solid var(--brand);background:var(--ok-bg)}
+.cand.sel{outline:3px solid var(--accent)}
+.cand .ph{width:100%;aspect-ratio:3/4;border-radius:8px;background:var(--surface-2);overflow:hidden;display:grid;place-items:center;color:var(--muted);font-weight:800;font-size:28px}
+.cand .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.cand .num{font-size:22px;font-weight:700;letter-spacing:.04em}
+.cand .nm{font-weight:700;font-size:14px;line-height:1.2}
+.cand .pt{font-size:12px;color:var(--muted)}
+.tag{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:2px 6px;background:var(--surface-2);color:var(--muted)}
+.tag.bad{background:var(--bad-bg);color:var(--danger)}
+.tag.warn{background:var(--warn-bg)}
+.more{grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:6px}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:24px 8px;font-size:14px}
+
+.chosen{display:flex;gap:12px;align-items:center;border:2px solid var(--brand);background:var(--ok-bg);border-radius:14px;padding:10px;margin-top:12px}
+.chosen .ph{width:62px;height:82px;border-radius:8px;overflow:hidden;background:var(--surface-2);flex:none;display:grid;place-items:center;font-weight:800;color:var(--muted)}
+.chosen .ph img{width:100%;height:100%;object-fit:cover}
+.chosen .info{flex:1;min-width:0}
+.chosen .num{font-size:26px;font-weight:700}
+.chosen .nm{font-weight:700}
+.chosen .pt{font-size:13px;color:var(--muted)}
+
+.nav{display:flex;gap:8px;justify-content:space-between;margin-top:16px;flex-wrap:wrap}
+.quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+
+/* Resumo */
+.sum-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.sum-row:first-of-type{border-top:0}
+.sum-row .ph{width:44px;height:58px;border-radius:6px;overflow:hidden;background:var(--surface-2);flex:none;display:grid;place-items:center;font-weight:800;color:var(--muted);font-size:14px}
+.sum-row .ph img{width:100%;height:100%;object-fit:cover}
+.sum-row .c{flex:1;min-width:0}
+.sum-row .c .lbl{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.sum-row .c .nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sum-row .n{font-size:24px;font-weight:700;letter-spacing:.05em}
+.sum-row.empty-row .nm{color:var(--muted);font-weight:500}
+
+details.cfg{font-size:13px;color:var(--muted);margin-top:18px}
+details.cfg summary{cursor:pointer;font-weight:600}
+details.cfg .row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}
+details.cfg input{border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--surface);color:var(--text);width:170px}
+.note{font-size:12.5px;color:var(--muted);margin-top:14px;line-height:1.5}
+
+/* ===== Impressão ===== */
+#print{display:none}
+@media print{
+  @page{size:A4;margin:10mm}
+  body{background:#fff;color:#000}
+  header.top,main{display:none!important}
+  #print{display:block}
+  .pcard{border:2px dashed #000;border-radius:6px;padding:4mm 5mm;width:95mm;display:inline-block;vertical-align:top;margin:0 3mm 4mm 0;break-inside:avoid;font-family:Inter,Arial,sans-serif}
+  #print.big .pcard{width:100%;padding:6mm 8mm}
+  .pcard h3{font-size:11pt;font-weight:800;border-bottom:1.5px solid #000;padding-bottom:1.5mm;margin-bottom:1.5mm;display:flex;justify-content:space-between}
+  .pcard h3 span{font-weight:500;font-size:8pt}
+  .prow{display:flex;align-items:center;gap:2.5mm;padding:1.3mm 0;border-bottom:.5px solid #999}
+  .prow:last-child{border-bottom:0}
+  .prow .pf{width:10mm;height:13mm;border:.5px solid #999;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;font-size:7pt;font-weight:700}
+  .prow .pf img{width:100%;height:100%;object-fit:cover}
+  .prow .pc{flex:1;min-width:0}
+  .prow .pc .l{font-size:6.5pt;text-transform:uppercase;font-weight:700;letter-spacing:.03em}
+  .prow .pc .nm{font-size:8.5pt;font-weight:600;line-height:1.1}
+  .prow .pn{display:flex;gap:.8mm}
+  .prow .pn b{width:5.4mm;height:7mm;border:1.2px solid #000;border-radius:1mm;display:flex;align-items:center;justify-content:center;font-family:"Roboto Mono",monospace;font-size:12pt}
+  #print.big .prow .pf{width:16mm;height:21mm}
+  #print.big .prow .pc .l{font-size:9pt}
+  #print.big .prow .pc .nm{font-size:13pt}
+  #print.big .prow .pn b{width:9mm;height:11mm;font-size:20pt}
+  #print.big .pcard h3{font-size:16pt}
+  .pfoot{font-size:6.5pt;margin-top:1.5mm;color:#333}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div>
+      <h1>🗳️ Cola Eleitoral · SP 2026</h1>
+      <p>1º turno · domingo, 4 de outubro · monte sua cola e imprima</p>
+    </div>
+    <div class="top-actions">
+      <button class="btn ghost small" id="btnResumo">📋 Minha cola</button>
+      <button class="btn primary small" id="btnPrint">🖨️ Imprimir</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="status loading" id="status"><span class="dot"></span><div id="statusTxt">Conectando ao TSE…</div></div>
+  <nav class="steps" id="steps"></nav>
+  <section id="view"></section>
+
+  <details class="cfg">
+    <summary>Configurações avançadas</summary>
+    <div class="row">
+      <label>Código da eleição no TSE:</label>
+      <input id="cfgEleicao" class="mono" placeholder="detectado automaticamente">
+      <button class="btn small" id="cfgSalvar">Salvar e recarregar</button>
+    </div>
+    <div class="row">
+      <button class="btn small" id="cfgLimpaCache">Atualizar candidatos do TSE</button>
+      <button class="btn small danger" id="cfgLimpaTudo">Apagar minhas escolhas</button>
+    </div>
+  </details>
+
+  <p class="note">
+    Dados, nomes e fotos vêm do <b>DivulgaCandContas (TSE)</b>, consultado direto do seu navegador. Suas escolhas ficam salvas só neste aparelho.
+    Celular é proibido na cabine de votação, mas <b>levar a cola em papel é permitido</b>. Confira sempre o número na tela da urna antes de confirmar.
+  </p>
+</main>
+
+<div id="print"></div>
+
+<script>
+(() => {
+'use strict';
+
+const TSE = 'https://divulgacandcontas.tse.jus.br/divulga/rest';
+const API = TSE + '/v1';
+const ANO = 2026;
+
+// Ordem em que os cargos aparecem na urna (eleições gerais 2026)
+const CARGOS = [
+  { key:'depfed', titulo:'Deputado(a) Federal',  curto:'Dep. Federal',  cod:6, ue:'SP', dig:4, legenda:true },
+  { key:'depest', titulo:'Deputado(a) Estadual', curto:'Dep. Estadual', cod:7, ue:'SP', dig:5, legenda:true },
+  { key:'sen1',   titulo:'Senador(a) · 1ª vaga', curto:'Senador 1',     cod:5, ue:'SP', dig:3 },
+  { key:'sen2',   titulo:'Senador(a) · 2ª vaga', curto:'Senador 2',     cod:5, ue:'SP', dig:3 },
+  { key:'gov',    titulo:'Governador(a) de SP',  curto:'Governador',    cod:3, ue:'SP', dig:2 },
+  { key:'pres',   titulo:'Presidente da República', curto:'Presidente', cod:1, ue:'BR', dig:2 },
+];
+
+// Rotas para contornar bloqueio de CORS, na ordem em que são tentadas
+const ROUTES = [
+  u => u,
+  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+];
+
+const LS = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch{ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} },
+  del(k){ try{ localStorage.removeItem(k); }catch{} },
+};
+
+const state = {
+  eleicao: LS.get('cola.eleicao', null),
+  lists: {},                    // cod cargo -> [candidatos]
+  picks: LS.get('cola.picks', {}),
+  step: LS.get('cola.step', 0),
+  query: '',
+  routeIdx: LS.get('cola.route', 0),
+};
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const initials = n => String(n||'?').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+
+function setStatus(kind, html){
+  const el = $('#status');
+  el.className = 'status ' + kind;
+  $('#statusTxt').innerHTML = html;
+}
+
+async function fetchJSON(url){
+  let lastErr;
+  const order = [state.routeIdx, ...ROUTES.keys()].filter((v,i,a)=>a.indexOf(v)===i);
+  for (const i of order){
+    try{
+      const ctrl = new AbortController();
+      const t = setTimeout(()=>ctrl.abort(), 25000);
+      const r = await fetch(ROUTES[i](url), { signal: ctrl.signal, headers:{ 'Accept':'application/json' } });
+      clearTimeout(t);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const data = await r.json();
+      if (state.routeIdx !== i){ state.routeIdx = i; LS.set('cola.route', i); }
+      return data;
+    }catch(e){ lastErr = e; }
+  }
+  throw lastErr || new Error('Falha de rede');
+}
+
+function fotoURL(c, cargo){
+  return `${TSE}/arquivo/img/${state.eleicao.id}/${c.id}/${cargo.ue}`;
+}
+
+// ---------- Descobre o código da eleição geral 2026 ----------
+async function descobrirEleicao(){
+  const override = LS.get('cola.eleicaoManual', null);
+  if (override) return { id: String(override), nome: 'Eleição ' + override };
+  if (state.eleicao && state.eleicao.ano === ANO) return state.eleicao;
+  const lista = await fetchJSON(`${API}/eleicao/ordinarias`);
+  const arr = (Array.isArray(lista) ? lista : (lista.eleicoes || [])).filter(e => Number(e.ano) === ANO);
+  if (!arr.length) throw new Error('Eleição 2026 não encontrada no TSE');
+  const score = e => {
+    const n = norm(e.nomeEleicao || e.descricaoEleicao || '');
+    let s = 0;
+    if (String(e.tipoAbrangencia).toUpperCase() === 'F') s += 4;
+    if (n.includes('geral') || n.includes('federal')) s += 3;
+    if (String(e.turno) === '1') s += 2;
+    return s;
+  };
+  arr.sort((a,b)=>score(b)-score(a));
+  const e = arr[0];
+  return { id: String(e.id), nome: e.nomeEleicao || e.descricaoEleicao || 'Eleições Gerais 2026', ano: ANO };
+}
+
+// ---------- Candidatos ----------
+function limpaCandidato(c){
+  const p = c.partido || {};
+  return {
+    id: c.id,
+    n: String(c.numero ?? c.numeroCandidato ?? ''),
+    nome: c.nomeUrna || c.nomeCandidatoUrna || c.nomeCompleto || '',
+    completo: c.nomeCompleto || '',
+    sigla: p.sigla || c.siglaPartido || '',
+    pnum: String(p.numero ?? '').padStart(2,'0'),
+    sit: c.descricaoSituacao || c.descricaoSituacaoCandidato || c.descricaoSituacaoCandidatura || '',
+    vice: (c.vices && c.vices[0] && (c.vices[0].nm_URNA || c.vices[0].nomeUrna)) || '',
+  };
+}
+
+async function carregarCargo(cargo){
+  if (state.lists[cargo.cod]) return state.lists[cargo.cod];
+  const ck = `cola.cand.${state.eleicao.id}.${cargo.cod}`;
+  const cached = LS.get(ck, null);
+  if (cached && Date.now() - cached.t < 6*3600e3){ state.lists[cargo.cod] = cached.l; return cached.l; }
+  const data = await fetchJSON(`${API}/candidatura/listar/${ANO}/${cargo.ue}/${state.eleicao.id}/${cargo.cod}/candidatos`);
+  const l = (data.candidatos || []).map(limpaCandidato).filter(c => c.n);
+  state.lists[cargo.cod] = l;
+  LS.set(ck, { t: Date.now(), l });
+  return l;
+}
+
+const ruim = sit => /indefer|ren[uú]n|cancel|falec|cassad|n[aã]o conhec|inapto/i.test(sit) && !/com recurso/i.test(sit);
+function tagSit(sit){
+  if (!sit) return '';
+  if (ruim(sit)) return `<span class="tag bad">${esc(sit)}</span>`;
+  if (/recurso|aguard|pendente/i.test(sit)) return `<span class="tag warn">${esc(sit)}</span>`;
+  return `<span class="tag">${esc(sit)}</span>`;
+}
+
+function fotoHTML(c, cargo){
+  if (!c || !c.id) return esc(initials(c && c.nome));
+  return `<img loading="lazy" alt="Foto de ${esc(c.nome)}" src="${fotoURL(c,cargo)}" onerror="this.replaceWith(document.createTextNode('${esc(initials(c.nome)).replace(/'/g,'')}'))">`;
+}
+
+// ---------- Legendas (voto no partido) para deputados ----------
+function partidosDe(lista){
+  const m = new Map();
+  for (const c of lista) if (c.sigla && c.pnum && c.pnum !== '00' && !m.has(c.pnum)) m.set(c.pnum, { legenda:true, n:c.pnum, nome:'Voto na legenda ' + c.sigla, sigla:c.sigla });
+  return [...m.values()].sort((a,b)=>a.n.localeCompare(b.n));
+}
+
+// ---------- Renderização ----------
+function renderSteps(){
+  const items = CARGOS.map((c,i)=>`<button class="step ${i===state.step?'active':''} ${state.picks[c.key]?'done':''}" data-i="${i}"><span class="n">${state.picks[c.key]?'✓':i+1}</span>${c.curto}</button>`);
+  items.push(`<button class="step ${state.step===CARGOS.length?'active':''}" data-i="${CARGOS.length}"><span class="n">★</span>Minha cola</button>`);
+  $('#steps').innerHTML = items.join('');
+  const act = $('#steps .active'); act && act.scrollIntoView({block:'nearest',inline:'center'});
+}
+
+function urnaBoxes(cargo, val){
+  const d = (val || '').replace(/\D/g,'').slice(0,cargo.dig);
+  let h = '';
+  for (let i=0;i<cargo.dig;i++) h += `<div class="d mono ${d[i]?'f':''}">${d[i]||''}</div>`;
+  return h;
+}
+
+function goStep(i){
+  state.step = Math.max(0, Math.min(CARGOS.length, i));
+  LS.set('cola.step', state.step);
+  state.query = '';
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function render(){
+  renderSteps();
+  if (state.step === CARGOS.length) return renderResumo();
+  const cargo = CARGOS[state.step];
+  const pick = state.picks[cargo.key];
+  $('#view').innerHTML = `
+    <div class="card">
+      <h2>${esc(cargo.titulo)}</h2>
+      <div class="sub">Número de <b>${cargo.dig} dígitos</b>${cargo.legenda?' · ou 2 dígitos para votar só no partido (legenda)':''}${cargo.key==='sen2'?' · escolha um nome diferente da 1ª vaga':''}</div>
+      <div class="urna" id="urna">${urnaBoxes(cargo, state.query || (pick && pick.n))}</div>
+      <div class="search">
+        <input id="q" autocomplete="off" inputmode="search" placeholder="Digite o número ou o nome do candidato" value="${esc(state.query)}">
+      </div>
+      <div class="hint">Ao digitar, aparecem os candidatos com foto — toque no escolhido para confirmar.</div>
+      <div id="chosen">${pick ? chosenHTML(pick, cargo) : ''}</div>
+      <div class="results" id="res"><div class="empty">Carregando candidatos do TSE…</div></div>
+      <div class="nav">
+        <button class="btn" id="prev" ${state.step===0?'disabled style="opacity:.4"':''}>← Anterior</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" id="skip">Deixar em branco</button>
+          <button class="btn primary" id="next">Próximo →</button>
+        </div>
+      </div>
+    </div>`;
+  const q = $('#q');
+  q.addEventListener('input', () => { state.query = q.value; $('#urna').innerHTML = urnaBoxes(cargo, state.query); renderResults(cargo); });
+  q.addEventListener('keydown', e => { if (e.key === 'Enter'){ const ex = $('.cand.exact') || ($('#res .cand:only-of-type')); ex && ex.click(); }});
+  $('#prev').onclick = () => goStep(state.step-1);
+  $('#next').onclick = () => goStep(state.step+1);
+  $('#skip').onclick = () => { delete state.picks[cargo.key]; LS.set('cola.picks', state.picks); goStep(state.step+1); };
+  bindChosen(cargo);
+  if (!pick && matchMedia('(min-width:700px)').matches) q.focus();
+
+  if (!state.eleicao){ $('#res').innerHTML = `<div class="empty">Aguardando conexão com o TSE…</div>`; return; }
+  try{
+    await carregarCargo(cargo);
+    if (CARGOS[state.step] === cargo) renderResults(cargo);
+  }catch(e){
+    $('#res').innerHTML = `<div class="empty">Não foi possível carregar os candidatos (${esc(e.message)}).<br><br><button class="btn" id="retry">Tentar de novo</button></div>`;
+    $('#retry').onclick = () => render();
+  }
+}
+
+function chosenHTML(p, cargo){
+  const c = p.legenda ? null : p;
+  return `<div class="chosen">
+    <div class="ph">${p.legenda ? esc(p.sigla) : fotoHTML(c, cargo)}</div>
+    <div class="info">
+      <div class="num mono">${esc(p.n)}</div>
+      <div class="nm">${esc(p.nome)}</div>
+      <div class="pt">${p.legenda ? 'Voto somente no partido' : esc(p.sigla)}${p.vice ? ' · vice: '+esc(p.vice) : ''}</div>
+    </div>
+    <button class="btn small" id="unpick" title="Remover">✕</button>
+  </div>`;
+}
+function bindChosen(cargo){
+  const b = $('#unpick');
+  if (b) b.onclick = () => { delete state.picks[cargo.key]; LS.set('cola.picks', state.picks); render(); };
+}
+
+function renderResults(cargo){
+  const lista = state.lists[cargo.cod] || [];
+  const raw = state.query.trim();
+  const digits = raw.replace(/\D/g,'');
+  const isNum = raw !== '' && /^[\d\s]+$/.test(raw);
+  let pool = lista;
+  let res;
+  if (!raw){
+    res = cargo.dig <= 3 ? lista.slice() : [];
+  } else if (isNum){
+    res = pool.filter(c => c.n.startsWith(digits));
+    if (cargo.legenda && digits.length <= 2) res = partidosDe(lista).filter(p => p.n.startsWith(digits)).concat(res);
+  } else {
+    const t = norm(raw);
+    res = pool.filter(c => norm(c.nome).includes(t) || norm(c.completo).includes(t) || norm(c.sigla) === t);
+  }
+  // candidatos aptos primeiro, depois por número
+  res.sort((a,b)=> (a.legenda?0:1)-(b.legenda?0:1) || (ruim(a.sit)?1:0)-(ruim(b.sit)?1:0) || a.n.localeCompare(b.n));
+  const LIM = 60;
+  const pick = state.picks[cargo.key];
+  const outro = cargo.key==='sen2' ? state.picks.sen1 : cargo.key==='sen1' ? state.picks.sen2 : null;
+  let html = '';
+  if (!raw && cargo.dig > 3){
+    html = `<div class="empty">${lista.length.toLocaleString('pt-BR')} candidatos a ${esc(cargo.curto)} em SP.<br>Comece a digitar o número (ou o nome) para filtrar.</div>`;
+  } else if (!res.length){
+    html = `<div class="empty">Nenhum candidato encontrado para “${esc(raw)}”.</div>`;
+  } else {
+    html = res.slice(0,LIM).map((c,i) => {
+      const exact = isNum && c.n === digits && (c.legenda ? true : digits.length === cargo.dig);
+      const sel = pick && pick.n === c.n;
+      const dup = outro && outro.n === c.n;
+      return `<button class="cand ${exact?'exact':''} ${sel?'sel':''}" data-i="${i}">
+        <div class="ph">${c.legenda ? esc(c.sigla) : fotoHTML(c, cargo)}</div>
+        <div class="num mono">${esc(c.n)}</div>
+        <div class="nm">${esc(c.nome)}</div>
+        <div class="pt">${esc(c.legenda ? 'Legenda (partido)' : c.sigla)}${c.vice ? ' · vice: '+esc(c.vice) : ''}</div>
+        ${c.legenda ? '' : tagSit(c.sit)}
+        ${dup ? '<span class="tag bad">Já escolhido na outra vaga</span>' : ''}
+      </button>`;
+    }).join('');
+    if (res.length > LIM) html += `<div class="more">Mostrando ${LIM} de ${res.length}. Digite mais dígitos para refinar.</div>`;
+  }
+  $('#res').innerHTML = html;
+  $('#res').querySelectorAll('.cand').forEach(b => b.onclick = () => {
+    const c = res[+b.dataset.i];
+    const outroP = cargo.key==='sen2' ? state.picks.sen1 : cargo.key==='sen1' ? state.picks.sen2 : null;
+    if (outroP && outroP.n === c.n && !confirm('Você já escolheu este candidato na outra vaga de senador. Votar duas vezes no mesmo anula o segundo voto. Continuar mesmo assim?')) return;
+    if (!c.legenda && ruim(c.sit) && !confirm(`Situação da candidatura: "${c.sit}". O voto pode não ser contado. Escolher mesmo assim?`)) return;
+    state.picks[cargo.key] = c;
+    LS.set('cola.picks', state.picks);
+    state.query = '';
+    renderSteps();
+    $('#chosen').innerHTML = chosenHTML(c, cargo);
+    bindChosen(cargo);
+    $('#q').value = '';
+    $('#urna').innerHTML = urnaBoxes(cargo, c.n);
+    renderResults(cargo);
+    $('#chosen').scrollIntoView({behavior:'smooth', block:'center'});
+  });
+}
+
+function renderResumo(){
+  const rows = CARGOS.map((cargo,i) => {
+    const p = state.picks[cargo.key];
+    return `<div class="sum-row ${p?'':'empty-row'}">
+      <div class="ph">${p ? (p.legenda ? esc(p.sigla) : fotoHTML(p, cargo)) : '—'}</div>
+      <div class="c"><div class="lbl">${esc(cargo.titulo)}</div><div class="nm">${p ? esc(p.nome) + (p.sigla && !p.legenda ? ' · '+esc(p.sigla) : '') : 'Não escolhido (branco)'}</div></div>
+      <div class="n mono">${p ? esc(p.n) : ''}</div>
+      <button class="btn small" data-go="${i}">Editar</button>
+    </div>`;
+  }).join('');
+  $('#view').innerHTML = `
+    <div class="card">
+      <h2>Minha cola</h2>
+      <div class="sub">Na ordem em que os cargos aparecem na urna.</div>
+      <div style="margin-top:12px">${rows}</div>
+      <div class="quick" style="margin-top:16px">
+        <label style="display:flex;gap:6px;align-items:center;font-size:14px"><input type="radio" name="fmt" value="small" checked> Cartão de bolso (4 por folha, para recortar)</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:14px"><input type="radio" name="fmt" value="big"> Folha inteira (letra grande)</label>
+      </div>
+      <div class="nav">
+        <button class="btn" data-go="0">← Voltar ao início</button>
+        <button class="btn primary" id="doPrint">🖨️ Imprimir cola</button>
+      </div>
+    </div>`;
+  $('#view').querySelectorAll('[data-go]').forEach(b => b.onclick = () => goStep(+b.dataset.go));
+  $('#doPrint').onclick = imprimir;
+}
+
+// ---------- Impressão ----------
+function cardPrint(){
+  const rows = CARGOS.map(cargo => {
+    const p = state.picks[cargo.key];
+    const n = p ? p.n : '';
+    let boxes = '';
+    const len = p && p.legenda ? 2 : cargo.dig;
+    for (let i=0;i<len;i++) boxes += `<b>${esc(n[i]||'')}</b>`;
+    return `<div class="prow">
+      <div class="pf">${p ? (p.legenda ? esc(p.sigla) : `<img src="${fotoURL(p,cargo)}" alt="" onerror="this.style.display='none'">`) : ''}</div>
+      <div class="pc"><div class="l">${esc(cargo.curto)}</div><div class="nm">${p ? esc(p.nome) + (p.sigla && !p.legenda ? ' ('+esc(p.sigla)+')' : '') : 'Branco'}</div></div>
+      <div class="pn">${boxes}</div>
+    </div>`;
+  }).join('');
+  return `<div class="pcard"><h3>MINHA COLA · ELEIÇÕES 2026 <span>1º turno · 4/out</span></h3>${rows}
+    <div class="pfoot">Confira o número e a foto na tela da urna antes de apertar CONFIRMA.</div></div>`;
+}
+function imprimir(){
+  const fmt = (document.querySelector('input[name=fmt]:checked')||{}).value || 'small';
+  const el = $('#print');
+  el.className = fmt === 'big' ? 'big' : '';
+  el.innerHTML = fmt === 'big' ? cardPrint() : cardPrint().repeat(4);
+  // espera as fotos carregarem (até 4s) antes de abrir a janela de impressão
+  const imgs = [...el.querySelectorAll('img')];
+  Promise.race([
+    Promise.all(imgs.map(i => i.complete ? 0 : new Promise(r => { i.addEventListener('load', r); i.addEventListener('error', r); }))),
+    new Promise(r => setTimeout(r, 4000)),
+  ]).then(() => window.print());
+}
+
+// ---------- Eventos globais ----------
+$('#steps').addEventListener('click', e => { const b = e.target.closest('.step'); if (b) goStep(+b.dataset.i); });
+$('#btnResumo').onclick = () => goStep(CARGOS.length);
+$('#btnPrint').onclick = () => { if (state.step !== CARGOS.length) goStep(CARGOS.length); setTimeout(imprimir, 50); };
+$('#cfgEleicao').value = LS.get('cola.eleicaoManual', '') || '';
+$('#cfgSalvar').onclick = () => {
+  const v = $('#cfgEleicao').value.trim();
+  v ? LS.set('cola.eleicaoManual', v) : LS.del('cola.eleicaoManual');
+  LS.del('cola.eleicao'); location.reload();
+};
+$('#cfgLimpaCache').onclick = () => {
+  Object.keys(localStorage).filter(k => k.startsWith('cola.cand.') || k === 'cola.eleicao').forEach(k => LS.del(k));
+  location.reload();
+};
+$('#cfgLimpaTudo').onclick = () => { if (confirm('Apagar todas as escolhas?')){ state.picks = {}; LS.set('cola.picks', {}); goStep(0); } };
+
+// ---------- Início ----------
+async function init(){
+  render();
+  try{
+    state.eleicao = await descobrirEleicao();
+    LS.set('cola.eleicao', state.eleicao);
+    setStatus('ok', `Conectado ao TSE · <b>${esc(state.eleicao.nome)}</b><small>Código ${esc(state.eleicao.id)} · candidatos atualizados a cada 6 h</small>`);
+    render();
+  }catch(e){
+    setStatus('err', `Não consegui acessar o site do TSE agora (${esc(e.message)}).<small>Verifique a internet e recarregue a página. Se persistir, informe o código da eleição em “Configurações avançadas”.</small>`);
+  }
+}
+init();
+})();
+</script>
+</body>
+</html>
