@@ -36,7 +36,7 @@ def baixar(url):
 
 
 def vazio(v):
-    return v is None or v.strip() in ("", "#NULO#", "#NE#", "#NULO", "-1", "-3")
+    return v is None or v.strip() == "" or v.strip().startswith("#") or v.strip() in ("-1", "-3")
 
 
 def titulo(s):
@@ -85,7 +85,8 @@ def main():
         if cd not in CARGOS or (CARGOS[cd] != "BR" and uf != CARGOS[cd]):
             continue
         cod_eleicao.setdefault(r.get("CD_ELEICAO", "").strip(), r.get("DS_ELEICAO", "").strip())
-        sit = r.get("DS_DETALHE_SITUACAO_CAND") or r.get("DS_SITUACAO_CANDIDATURA") or ""
+        sit = next((r.get(k) for k in ("DS_DETALHE_SITUACAO_CAND", "DS_SITUACAO_CANDIDATURA")
+                    if not vazio(r.get(k))), "")
         pnum = r.get("NR_PARTIDO", "").strip()
         cargos[cd].append({
             "id": int(r["SQ_CANDIDATO"]),
@@ -97,6 +98,16 @@ def main():
             "sit": titulo(sit),
             "vice": "",
         })
+    for cd, lista in cargos.items():
+        vistos = {}
+        for c in lista:
+            vistos.setdefault(c["n"], []).append(c["id"])
+        for n, ids_n in vistos.items():
+            if len(ids_n) > 1:
+                print(f"Número repetido cargo {cd} nº {n}:")
+                for r in turno1:
+                    if r.get("NR_CANDIDATO", "").strip() == n and r.get("CD_CARGO") == str(cd) and (cd == 1 or r.get("SG_UF") == "SP"):
+                        print("   ", {k: v for k, v in r.items() if k.startswith(("SQ_", "NM_URNA", "DS_SITUACAO", "DS_DETALHE", "CD_SITUACAO", "DT_GERACAO", "HH_", "CD_ELEICAO", "DS_ELEICAO", "ST_"))})
     for cd, lista in cargos.items():
         for c in lista:
             c["vice"] = vices.get((cd, c["n"]), "")
