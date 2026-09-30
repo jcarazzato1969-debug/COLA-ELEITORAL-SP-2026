@@ -6,6 +6,25 @@
 <title>Cola Eleitoral SP 2026</title>
 <meta name="theme-color" content="#0b3d2e">
 <meta name="description" content="Monte sua cola para as Eleições 2026 em São Paulo: presidente, governador, senadores e deputados, com foto e número dos candidatos.">
+<!-- Pré-visualização do link no WhatsApp / redes sociais -->
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Cola Eleitoral SP 2026">
+<meta property="og:title" content="🗳️ Cola Eleitoral SP 2026 — monte e imprima a sua">
+<meta property="og:description" content="Escolha presidente, governador, senadores e deputados de SP com foto e número. Envie pelo WhatsApp ou imprima para levar à urna.">
+<meta property="og:url" content="https://jcarazzato1969-debug.github.io/-lbum-copa-2026-/cola-eleitoral/">
+<meta property="og:image" content="https://jcarazzato1969-debug.github.io/-lbum-copa-2026-/cola-eleitoral/og-image.png">
+<meta property="og:image:secure_url" content="https://jcarazzato1969-debug.github.io/-lbum-copa-2026-/cola-eleitoral/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Cola Eleitoral SP 2026">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cola SP 2026">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -97,6 +116,10 @@ main{max-width:880px;margin:0 auto;padding:16px 16px 60px}
 .chosen .nm{font-weight:700}
 .chosen .pt{font-size:13px;color:var(--muted)}
 
+.btn.wa{background:#25d366;border-color:#25d366;color:#062e16}
+.share-box{margin-top:16px;padding:12px;border:1px dashed var(--line);border-radius:12px}
+.share-box h3{font-size:14px;font-weight:700;margin-bottom:8px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#14201b;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;z-index:9;box-shadow:0 4px 18px rgba(0,0,0,.25)}
 .nav{display:flex;gap:8px;justify-content:space-between;margin-top:16px;flex-wrap:wrap}
 .quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 
@@ -155,6 +178,7 @@ details.cfg input{border:1px solid var(--line);border-radius:8px;padding:7px 9px
       <p>1º turno · domingo, 4 de outubro · monte sua cola e imprima</p>
     </div>
     <div class="top-actions">
+      <button class="btn ghost small" id="btnShareApp">📲 Enviar app</button>
       <button class="btn ghost small" id="btnResumo">📋 Minha cola</button>
       <button class="btn primary small" id="btnPrint">🖨️ Imprimir</button>
     </div>
@@ -496,9 +520,21 @@ function renderResumo(){
         <button class="btn" data-go="0">← Voltar ao início</button>
         <button class="btn primary" id="doPrint">🖨️ Imprimir cola</button>
       </div>
+      <div class="share-box">
+        <h3>Enviar pelo WhatsApp</h3>
+        <div class="quick" style="margin-top:0">
+          <button class="btn wa" id="waTexto">💬 Enviar cola em texto</button>
+          <button class="btn wa" id="waImagem">🖼️ Enviar cola em imagem</button>
+          <button class="btn" id="waApp">📲 Indicar o app a um amigo</button>
+        </div>
+        <div class="hint">Lembre: o celular não pode entrar na cabine. Use a imagem para imprimir ou copiar os números no papel.</div>
+      </div>
     </div>`;
   $('#view').querySelectorAll('[data-go]').forEach(b => b.onclick = () => goStep(+b.dataset.go));
   $('#doPrint').onclick = imprimir;
+  $('#waTexto').onclick = enviarTexto;
+  $('#waImagem').onclick = enviarImagem;
+  $('#waApp').onclick = compartilharApp;
 }
 
 // ---------- Impressão ----------
@@ -531,8 +567,118 @@ function imprimir(){
   ]).then(() => window.print());
 }
 
+
+// ---------- WhatsApp / compartilhamento ----------
+const APP_URL = location.protocol.startsWith('http') ? location.origin + location.pathname : 'https://jcarazzato1969-debug.github.io/-lbum-copa-2026-/cola-eleitoral/';
+function toast(msg){
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
+}
+function abrirWhatsApp(texto){
+  window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank', 'noopener');
+}
+function textoCola(){
+  const linhas = CARGOS.map(cargo => {
+    const p = state.picks[cargo.key];
+    if (!p) return `▫️ *${cargo.curto}:* branco`;
+    return `✅ *${cargo.curto}:* ${p.n} – ${p.nome}${p.sigla && !p.legenda ? ' (' + p.sigla + ')' : ''}`;
+  });
+  return `🗳️ *MINHA COLA – ELEIÇÕES 2026 (SP)*\n1º turno · domingo, 4 de outubro\n\n${linhas.join('\n')}\n\n_Confira o número e a foto na urna antes de CONFIRMA._\nMonte a sua: ${APP_URL}`;
+}
+async function enviarTexto(){
+  const texto = textoCola();
+  abrirWhatsApp(texto);
+}
+async function compartilharApp(){
+  const texto = '🗳️ Monte sua cola para as eleições de domingo (SP): escolha presidente, governador, senadores e deputados com foto e número, e imprima!';
+  if (navigator.share){
+    try{ await navigator.share({ title:'Cola Eleitoral SP 2026', text: texto, url: APP_URL }); return; }catch(e){ if (e.name === 'AbortError') return; }
+  }
+  abrirWhatsApp(texto + '\n' + APP_URL);
+}
+
+function carregaImg(src){
+  return new Promise(res => {
+    const i = new Image(); i.crossOrigin = 'anonymous';
+    const t = setTimeout(() => res(null), 4000);
+    i.onload = () => { clearTimeout(t); res(i); };
+    i.onerror = () => { clearTimeout(t); res(null); };
+    i.src = src;
+  });
+}
+function rr(ctx, x, y, w, h, r){ ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x,y,w,h,r) : ctx.rect(x,y,w,h); }
+function corta(ctx, txt, max){
+  if (ctx.measureText(txt).width <= max) return txt;
+  while (txt.length > 1 && ctx.measureText(txt + '…').width > max) txt = txt.slice(0,-1);
+  return txt + '…';
+}
+async function gerarImagem(){
+  const W = 1080, H = 1350, cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const x = cv.getContext('2d');
+  const F = 'Inter, system-ui, Arial, sans-serif', M = '"Roboto Mono", ui-monospace, monospace';
+  x.fillStyle = '#f3f5f4'; x.fillRect(0,0,W,H);
+  x.fillStyle = '#0b3d2e'; x.fillRect(0,0,W,190);
+  x.fillStyle = '#fff'; x.font = `800 54px ${F}`; x.fillText('🗳️ MINHA COLA · 2026', 56, 100);
+  x.font = `500 30px ${F}`; x.globalAlpha = .85; x.fillText('Eleições SP · 1º turno · domingo, 4 de outubro', 56, 150); x.globalAlpha = 1;
+  const fotos = await Promise.all(CARGOS.map(c => { const p = state.picks[c.key]; return p && !p.legenda && p.id ? carregaImg(fotoURL(p,c)) : null; }));
+  const top = 222, rowH = 150;
+  CARGOS.forEach((cargo, i) => {
+    const p = state.picks[cargo.key], y = top + i*(rowH+10);
+    x.fillStyle = '#fff'; rr(x, 40, y, W-80, rowH, 22); x.fill();
+    x.strokeStyle = '#d6dfdb'; x.lineWidth = 2; x.stroke();
+    // foto / iniciais
+    const fx = 64, fy = y+17, fw = 88, fh = 116;
+    x.save(); rr(x, fx, fy, fw, fh, 12); x.clip();
+    x.fillStyle = '#eef2f0'; x.fillRect(fx, fy, fw, fh);
+    if (fotos[i]){ const im = fotos[i], r = Math.max(fw/im.width, fh/im.height); x.drawImage(im, fx+(fw-im.width*r)/2, fy+(fh-im.height*r)/2, im.width*r, im.height*r); }
+    else { x.fillStyle = '#5d6d66'; x.font = `800 34px ${F}`; x.textAlign = 'center'; x.fillText(p ? (p.legenda ? p.sigla : initials(p.nome)) : '—', fx+fw/2, fy+fh/2+12); x.textAlign = 'left'; }
+    x.restore();
+    // caixas do número (tamanho da urna)
+    const len = p && p.legenda ? 2 : cargo.dig, bw = 62, bh = 84, gap = 10;
+    const bx0 = W - 64 - len*bw - (len-1)*gap, by = y + (rowH-bh)/2;
+    for (let k=0;k<len;k++){
+      const bx = bx0 + k*(bw+gap);
+      x.fillStyle = p ? '#fff' : '#f3f5f4'; rr(x, bx, by, bw, bh, 10); x.fill();
+      x.strokeStyle = p ? '#0b6b4a' : '#c2cec9'; x.lineWidth = 4; x.stroke();
+      if (p){ x.fillStyle = '#14201b'; x.font = `700 50px ${M}`; x.textAlign = 'center'; x.fillText(p.n[k]||'', bx+bw/2, by+62); x.textAlign = 'left'; }
+    }
+    // textos
+    const tx = 176, maxW = bx0 - tx - 20;
+    x.fillStyle = '#0b6b4a'; x.font = `700 26px ${F}`; x.fillText(cargo.curto.toUpperCase(), tx, y+54);
+    x.fillStyle = p ? '#14201b' : '#8a9892'; x.font = `${p?700:500} 36px ${F}`;
+    x.fillText(corta(x, p ? p.nome : 'Branco', maxW), tx, y+96);
+    if (p){ x.fillStyle = '#5d6d66'; x.font = `500 26px ${F}`; x.fillText(corta(x, p.legenda ? 'Voto na legenda' : p.sigla, maxW), tx, y+130); }
+  });
+  x.fillStyle = '#5d6d66'; x.font = `500 26px ${F}`; x.textAlign = 'center';
+  x.fillText('Confira número e foto na urna antes de apertar CONFIRMA.', W/2, H-82);
+  x.fillStyle = '#0b6b4a'; x.font = `600 22px ${F}`;
+  x.fillText('Monte a sua: ' + APP_URL.replace(/^https?:\/\//,''), W/2, H-38);
+  x.textAlign = 'left';
+  try{ return await new Promise(r => cv.toBlob(r, 'image/png')); }
+  catch{ return null; } // se a foto "sujar" o canvas, tenta de novo sem fotos
+}
+async function enviarImagem(){
+  const btn = $('#waImagem'); const old = btn.textContent; btn.textContent = 'Gerando imagem…'; btn.disabled = true;
+  try{
+    const blob = await gerarImagem();
+    if (!blob) throw new Error('não foi possível gerar a imagem');
+    const file = new File([blob], 'minha-cola-2026.png', { type:'image/png' });
+    if (navigator.canShare && navigator.canShare({ files:[file] })){
+      try{ await navigator.share({ files:[file], title:'Minha cola 2026', text:'Minha cola para domingo 🗳️ Monte a sua: ' + APP_URL }); return; }
+      catch(e){ if (e.name === 'AbortError') return; }
+    }
+    // computador: baixa a imagem para anexar no WhatsApp Web
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    toast('Imagem salva. Anexe no WhatsApp (📎 → Fotos).');
+  }catch(e){ toast('Erro: ' + e.message); }
+  finally{ btn.textContent = old; btn.disabled = false; }
+}
+
 // ---------- Eventos globais ----------
 $('#steps').addEventListener('click', e => { const b = e.target.closest('.step'); if (b) goStep(+b.dataset.i); });
+$('#btnShareApp').onclick = compartilharApp;
 $('#btnResumo').onclick = () => goStep(CARGOS.length);
 $('#btnPrint').onclick = () => { if (state.step !== CARGOS.length) goStep(CARGOS.length); setTimeout(imprimir, 50); };
 $('#cfgEleicao').value = LS.get('cola.eleicaoManual', '') || '';
