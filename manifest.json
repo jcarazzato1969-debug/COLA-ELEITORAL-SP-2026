@@ -1,18 +1,16 @@
 {
-  "name": "Álbum Copa 2026",
-  "short_name": "Copa 2026",
-  "description": "Controle suas figurinhas do álbum Panini Copa do Mundo 2026",
+  "name": "Cola Eleitoral - SP 2026",
+  "short_name": "Cola Eleitoral SP",
+  "description": "Monte e imprima sua cola para as Eleições 2026 em São Paulo",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#0A1628",
-  "theme_color": "#0A1628",
-  "orientation": "portrait",
+  "background_color": "#0b3d2e",
+  "theme_color": "#0b3d2e",
   "lang": "pt-BR",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
     { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" }
-  ],
-  "screenshots": [],
-  "categories": ["sports", "entertainment"]
+  ]
 }
