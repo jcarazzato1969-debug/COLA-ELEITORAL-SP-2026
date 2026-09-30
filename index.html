@@ -204,7 +204,7 @@ details.cfg input{border:1px solid var(--line);border-radius:8px;padding:7px 9px
   </details>
 
   <p class="note">
-    Dados, nomes e fotos vêm do <b>DivulgaCandContas (TSE)</b>, consultado direto do seu navegador. Suas escolhas ficam salvas só neste aparelho.
+    Números, nomes e fotos vêm dos <b>Dados Abertos do TSE</b> e são atualizados automaticamente a cada 3 horas. Suas escolhas ficam salvas só neste aparelho.
     Celular é proibido na cabine de votação, mas <b>levar a cola em papel é permitido</b>. Confira sempre o número na tela da urna antes de confirmar.
   </p>
   <p class="note"><a href="album-copa/" style="color:var(--brand);font-weight:600">⚽ Álbum da Copa 2026 →</a></p>
@@ -283,6 +283,7 @@ async function fetchJSON(url){
 }
 
 function fotoURL(c, cargo){
+  if (c.foto) return `fotos/${c.id}.jpg`;   // foto baixada dos Dados Abertos do TSE
   return `${TSE}/arquivo/img/${state.eleicao.id}/${c.id}/${cargo.ue}`;
 }
 
@@ -711,7 +712,7 @@ async function init(){
     state.eleicao = d.eleicao;
     for (const k in d.cargos) state.lists[k] = d.cargos[k];
     const quando = new Date(d.atualizado).toLocaleString('pt-BR', { dateStyle:'short', timeStyle:'short' });
-    setStatus('ok', `Candidatos do TSE · <b>${esc(d.eleicao.nome)}</b><small>Lista oficial do DivulgaCandContas, atualizada em ${esc(quando)}</small>`);
+    setStatus('ok', `Candidatos do TSE · <b>${esc(d.eleicao.nome)}</b><small>Dados Abertos do TSE, atualizados em ${esc(quando)}</small>`);
     render();
     return;
   }catch(e){ /* sem arquivo local: tenta o TSE direto */ }

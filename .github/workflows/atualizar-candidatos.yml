@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [scripts/baixar-tse.mjs, .github/workflows/atualizar-candidatos.yml]
+    paths: [scripts/baixar_tse.py, .github/workflows/atualizar-candidatos.yml]
   schedule:
     - cron: '17 */3 * * *'   # a cada 3 horas
 
@@ -21,18 +21,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-python@v5
         with:
-          node-version: 20
-      - name: Baixar candidatos do DivulgaCandContas
-        run: node scripts/baixar-tse.mjs
+          python-version: '3.12'
+      - name: Baixar candidatos dos Dados Abertos do TSE
+        run: |
+          pip install --quiet pillow
+          python scripts/baixar_tse.py
       - name: Salvar no repositório e republicar o site
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/candidatos.json
+          git add data/candidatos.json fotos
           if git diff --cached --quiet; then
             echo "Sem mudanças nos candidatos."
             exit 0
